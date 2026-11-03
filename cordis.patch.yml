@@ -1,0 +1,14 @@
+# dsh-plugin-workspace-spend bundle patch.
+#
+# One Loader row. The package declares `dsh.client`, so `dsh-client-modules`
+# attaches its `./client` bundle to this row and serves it to the browser,
+# where it registers the 「支出统计」 page into the Settings panel's
+# `settings.section` slot. The Host half folds session logs and serves
+# `GET /api/workspace-spend` for that page.
+#
+# The row is inserted (never overriding a shipped row) so the bundle composes
+# on top of any profile. Override this row's `config` in the profile's
+# cordis.patch.yml to change prices, currency, holidays, or per-call fees.
+- insert:
+    - id: workspace-spend
+      name: 'dsh-plugin-workspace-spend'

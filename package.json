@@ -1,0 +1,59 @@
+{
+  "name": "dsh-plugin-workspace-spend",
+  "version": "1.0.0",
+  "description": "Estimated model spend per workspace for DeepSeek Harness (dsh): folds token usage from session logs, prices it with a configurable DeepSeek price table (peak/off-peak), and adds a Spend page to Settings.",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "spend",
+    "cost",
+    "usage",
+    "tokens",
+    "workspace",
+    "budget"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": {
+      "default": "./index.js"
+    },
+    "./client": {
+      "default": "./client.js"
+    },
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib/spend.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "icon.svg",
+    "README.md",
+    "LICENSE",
+    "PUBLISHING.md",
+    "test/spend.test.mjs",
+    "tools/verify-real-logs.mjs"
+  ],
+  "scripts": {
+    "test": "node test/spend.test.mjs",
+    "check": "node --check index.js && node --check client.js && node --check lib/spend.js"
+  },
+  "engines": {
+    "dsh": ">=0.2.1-rc.5"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true
+    }
+  }
+}

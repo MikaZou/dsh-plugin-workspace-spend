@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "Workspace spend",
+    "description": "Estimated model spend per workspace, folded from session logs and priced with a configurable DeepSeek price table."
+  }
+}
