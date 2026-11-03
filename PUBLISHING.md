@@ -41,24 +41,17 @@ dsh plugin add dsh-plugin-workspace-spend
 
 ## 同时放到 GitHub（推荐）
 
+仓库地址：`git@github.com:MikaZou/dsh-plugin-workspace-spend.git`
+
 ```sh
-git init
-git add .
-git commit -m "feat: workspace spend plugin for DeepSeek Harness"
-git branch -M main
-git remote add origin https://github.com/<user>/dsh-plugin-workspace-spend.git
+git remote add origin git@github.com:MikaZou/dsh-plugin-workspace-spend.git
 git push -u origin main
 ```
 
 然后：
 
-1. 在 `package.json` 补上：
-   ```json
-   "repository": { "type": "git", "url": "git+https://github.com/<user>/dsh-plugin-workspace-spend.git" },
-   "homepage": "https://github.com/<user>/dsh-plugin-workspace-spend#readme",
-   "bugs": "https://github.com/<user>/dsh-plugin-workspace-spend/issues"
-   ```
-2. 用户也可以直接从 Git 安装：`dsh plugin add github:<user>/dsh-plugin-workspace-spend`。
+1. `package.json` 已补好 `repository` / `homepage` / `bugs`（指向 MikaZou/dsh-plugin-workspace-spend）。
+2. 用户也可以直接从 Git 安装：`dsh plugin add github:MikaZou/dsh-plugin-workspace-spend`。
 3. 打 tag / 发 Release：`git tag v1.0.0 && git push --tags`。
 
 ## 升级发布

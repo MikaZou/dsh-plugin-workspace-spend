@@ -16,6 +16,14 @@
   "license": "MIT",
   "type": "module",
   "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MikaZou/dsh-plugin-workspace-spend.git"
+  },
+  "homepage": "https://github.com/MikaZou/dsh-plugin-workspace-spend#readme",
+  "bugs": {
+    "url": "https://github.com/MikaZou/dsh-plugin-workspace-spend/issues"
+  },
   "exports": {
     ".": {
       "default": "./index.js"

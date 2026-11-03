@@ -31,7 +31,14 @@ dsh plugin add dsh-plugin-workspace-spend
 ### 从 Git 仓库
 
 ```sh
-dsh plugin add github:<你的用户名>/dsh-plugin-workspace-spend
+dsh plugin add github:MikaZou/dsh-plugin-workspace-spend
+```
+
+或：
+
+```sh
+git clone git@github.com:MikaZou/dsh-plugin-workspace-spend.git
+dsh plugin add ./dsh-plugin-workspace-spend
 ```
 
 ### 从本地目录或 tarball
