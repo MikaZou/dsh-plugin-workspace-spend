@@ -45,16 +45,20 @@ window.__ModuleLoader__.load({
       emptyTitle: '所选范围内没有用量',
       emptyBody: '运行一个会话后再回来看，或切换到「全部」。',
       unpricedWarn: '以下模型没有配置价格，Token 已计入但不计价：',
-      pricingTitle: '价格表与计费规则',
+      pricingTitle: '价格表与计费规则（配置项，不代表已使用）',
       pricingNote:
-        '单价为 {currency}/百万 tokens 的峰值价；空闲时段按峰值价的 {discount} 倍计费。高峰时段：北京时间周一至周五 9:00–12:00、14:00–18:00；周末与 {holidays} 个配置的节假日全天为空闲时段。',
+        '单价为 {currency}/百万 tokens 的峰值价；空闲时段按峰值价的 {discount} 倍计费。高峰时段：北京时间周一至周五 9:00–12:00、14:00–18:00；周末与 {holidays} 个配置的节假日全天为空闲时段。下面列出的是已配置的模型单价，未使用的模型金额为 0。',
       pricingInput: '输入',
       pricingCache: '缓存命中',
       pricingOutput: '输出',
       pricingPerCall: '每次调用',
-      updatedAt: '更新于 {time}',
+      usedBadge: '本机已使用',
+      unusedBadge: '未使用',
+      updatedAt: '数据截至 {time}',
       partial: '{failed} 个会话读取失败，统计可能偏低',
-      scanNote: '共读取 {n} 个会话',
+      scanNote: '扫描 {n} 个历史会话（全部时间）',
+      reconcileNote:
+        '与 DeepSeek 平台「用量信息」对账时请对齐同一时刻：平台用量数据通常有 5 分钟以上延迟，而本页是实时读取本地会话日志的；本页时间按北京时间自然日切分。',
       note:
         '这是按本机日志与配置价格计算的估算值，不等同于账单；未记录用量的调用（例如自动生成标题）不计入。若要调整价格，请在 profile 的 cordis.patch.yml 中覆盖 workspace-spend 行的 config。',
       refund: '免费额度 / 赠送余额不在此统计范围内。',
@@ -90,16 +94,20 @@ window.__ModuleLoader__.load({
       emptyTitle: 'No usage in this range',
       emptyBody: 'Run a session and come back, or switch to "All time".',
       unpricedWarn: 'These models have no configured price; their tokens are counted but not priced:',
-      pricingTitle: 'Prices and rules',
+      pricingTitle: 'Prices and rules (configured rates, not usage)',
       pricingNote:
-        'Rates are peak {currency} per million tokens. Off-peak time is billed at {discount}×. Peak: Beijing time Mon–Fri 09:00–12:00 and 14:00–18:00; weekends and {holidays} configured holidays are off-peak all day.',
+        'Rates are peak {currency} per million tokens. Off-peak time is billed at {discount}×. Peak: Beijing time Mon–Fri 09:00–12:00 and 14:00–18:00; weekends and {holidays} configured holidays are off-peak all day. These are configured rates only; models not used here cost 0.',
       pricingInput: 'Input',
       pricingCache: 'Cache hit',
       pricingOutput: 'Output',
       pricingPerCall: 'per call',
-      updatedAt: 'Updated {time}',
+      usedBadge: 'used',
+      unusedBadge: 'not used',
+      updatedAt: 'Data through {time}',
       partial: '{failed} session(s) could not be read; totals may be low',
-      scanNote: '{n} sessions scanned',
+      scanNote: '{n} sessions scanned (all time)',
+      reconcileNote:
+        'To reconcile with the DeepSeek usage page, compare the same moment: platform usage data usually lags by several minutes, while this page reads local session logs live. Ranges use Beijing-time calendar days.',
       note:
         'This is an estimate from local logs and configured prices, not a bill. Calls that log no usage (for example automatic title generation) are not included. To change prices, override the config of the workspace-spend row in the profile cordis.patch.yml.',
       refund: 'Free quota and bonus balance are outside this estimate.',
@@ -169,6 +177,8 @@ window.__ModuleLoader__.load({
 .dws-rateList{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
 .dws-rateRow{display:flex;gap:10px;flex-wrap:wrap;font-size:11.5px;line-height:17px;font-variant-numeric:tabular-nums;color:var(--dsw-alias-label-secondary)}
 .dws-rateModel{color:var(--dsw-alias-label-primary);font-weight:600}
+.dws-rateBadge{border:.5px solid var(--dsw-alias-border-l1);border-radius:999px;padding:0 6px;font-size:10.5px;line-height:15px;color:var(--dsw-alias-label-secondary);white-space:nowrap}
+.dws-rateBadge[data-used="true"]{border-color:var(--dsw-alias-state-success-primary);color:var(--dsw-alias-state-success-primary)}
 .dws-foot{margin:0;color:var(--dsw-alias-label-secondary);font-size:11px;line-height:17px}
 `
 
@@ -355,6 +365,11 @@ window.__ModuleLoader__.load({
       const totals = report.totals ?? {}
       const workspaces = Array.isArray(report.workspaces) ? report.workspaces : []
       const models = Array.isArray(report.models) ? report.models : []
+      const usedModels = new Set(
+        models
+          .filter((model) => typeof model.model === 'string' && !model.model.startsWith('tool:'))
+          .map((model) => model.model),
+      )
       const unpricedModels = Array.isArray(report.unpricedModels) ? report.unpricedModels : []
       const scanned = report.scanned ?? { sessions: 0, failed: 0 }
       const totalCost = typeof totals.cost === 'number' ? totals.cost : 0
@@ -461,7 +476,8 @@ window.__ModuleLoader__.load({
               ),
             )
           : null,
-        h(PriceDetails, { pricing: report.pricing, t }),
+        h(PriceDetails, { pricing: report.pricing, t, usedModels }),
+        h('p', { className: 'dws-foot' }, t('reconcileNote')),
         h('p', { className: 'dws-foot' }, t('note')),
       )
     }
@@ -545,10 +561,11 @@ window.__ModuleLoader__.load({
     }
 
     function PriceDetails(props) {
-      const { pricing, t } = props
+      const { pricing, t, usedModels } = props
       if (pricing === undefined || pricing === null) return null
       const rates = Array.isArray(pricing.rates) ? pricing.rates : []
       const fees = Array.isArray(pricing.perCallFees) ? pricing.perCallFees : []
+      const used = usedModels instanceof Set ? usedModels : new Set()
       return h(
         'details',
         { className: 'dws-details' },
@@ -573,6 +590,11 @@ window.__ModuleLoader__.load({
                 'li',
                 { key: rate.model, className: 'dws-rateRow' },
                 h('span', { className: 'dws-rateModel' }, rate.model),
+                h(
+                  'span',
+                  { className: 'dws-rateBadge', 'data-used': used.has(rate.model) ? 'true' : 'false' },
+                  used.has(rate.model) ? t('usedBadge') : t('unusedBadge'),
+                ),
                 h('span', null, `${t('pricingInput')} ${formatRate(rate.input)}`),
                 h('span', null, `${t('pricingCache')} ${formatRate(rate.cacheRead)}`),
                 h('span', null, `${t('pricingOutput')} ${formatRate(rate.output)}`),
@@ -583,7 +605,7 @@ window.__ModuleLoader__.load({
                 'li',
                 { key: fee.tool, className: 'dws-rateRow' },
                 h('span', { className: 'dws-rateModel' }, fee.tool),
-                h('span', null, `${formatRate(fee.fee)} ${pricing.currency} ${t('pricingPerCall')}`),
+                h('span', { className: 'dws-rateBadge', 'data-used': 'false' }, `${formatRate(fee.fee)} ${pricing.currency} ${t('pricingPerCall')}`),
               ),
             ),
           ),
